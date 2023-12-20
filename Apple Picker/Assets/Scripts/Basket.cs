@@ -1,8 +1,11 @@
+using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Basket : MonoBehaviour
 {
+    [Header("Set Dynamically")] public TextMeshProUGUI scoreGT;
     private Camera _mainCamera;
 
     private void Awake()
@@ -17,7 +20,14 @@ public class Basket : MonoBehaviour
             return;
         }
     }
-    
+
+    private void Start()
+    {
+        var scoreGO = GameObject.Find("ScoreCounter");
+        scoreGT = scoreGO.GetComponent<TextMeshProUGUI>();
+        scoreGT.text = "0";
+    }
+
     private void Update()
     {
         Vector3 mousePos2D = Mouse.current.position.ReadValue();
@@ -27,5 +37,23 @@ public class Basket : MonoBehaviour
         pos.x = mousePos3D.x;
         // ReSharper disable once Unity.InefficientPropertyAccess
         this.transform.position = pos;
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        var collideWith = other.gameObject;
+        // ReSharper disable once InvertIf
+        if (collideWith.CompareTag("Apple"))
+        {
+            Destroy(collideWith);
+            var score = int.Parse(scoreGT.text);
+            score += 100;
+            scoreGT.text = score.ToString();
+
+            if (score > HighScore.score)
+            {
+                HighScore.score = score;
+            }
+        }
     }
 }
